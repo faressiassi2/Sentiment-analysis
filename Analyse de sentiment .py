@@ -1,15 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
-
-# first we just use the word embedding
-
-
-# In[10]:
-
-
 import tensorflow as tf
 from tensorflow import keras
 import pandas as pd
@@ -25,45 +13,15 @@ from nltk.util import pr
 from nltk.corpus import stopwords
 
 
-# In[2]:
-
-
 data = pd.read_csv('Tweets.csv')
 data.head()
 
 
-# In[3]:
-
-
 data = data[['text', 'airline_sentiment']]
 data.head()
-
-
-# In[5]:
-
-
 data.shape
-
-
-# In[6]:
-
-
 data.info()
-
-
-# In[8]:
-
-
 data['airline_sentiment'].value_counts()
-
-
-# In[7]:
-
-
-# Data preparation
-
-
-# In[ ]:
 
 
 #Nettoyage des données
@@ -72,17 +30,9 @@ data['airline_sentiment'].value_counts()
 #De plus, comme nous voulons construire un modèle qui peut également être utilisé pour d'autres compagnies aériennes, 
 #nous supprimons les mentions.
 
-
-# In[11]:
-
-
 stemmer = nltk.SnowballStemmer("english")
 nltk.download('stopwords')
 stopword = set(stopwords.words('english'))
-
-
-# In[12]:
-
 
 def clean(text):
     text = str(text).lower()
@@ -99,158 +49,36 @@ def clean(text):
     return text
 
 
-# In[13]:
-
-
 data["text"] = data["text"].apply(clean)
-
-
-# In[14]:
-
-
-data
-
-
-# In[17]:
-
-
-X_train = data['text']
-
-
-# In[19]:
-
 
 y_train = data['airline_sentiment']
 
-
-# In[20]:
-
-
 x_train, X_test, Y_train, y_test = train_test_split(X_train, y_train, test_size=0.2)
-
-
-# In[42]:
-
-
-x_train[0]
-
-
-# In[48]:
-
-
-X_test[8986]
-
-
-# In[36]:
-
 
 le = LabelEncoder()
 y_train_le = le.fit_transform(Y_train)
 
-
-# In[34]:
-
-
-len(x_train)
-
-
-# In[37]:
-
-
-len(y_train_le)
-
-
-# In[54]:
-
-
 y_test_le = le.transform(y_test)
-
-
-# In[78]:
-
-
-len(X_test)
-
-
-# In[77]:
-
-
-len(y_test_le)
-
-
-# In[15]:
-
 
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-
-
-# In[16]:
-
 
 #we define the hyperparametre:
 vocab_size = 1000
 embedding_dim = 16
 max_length = 20
 
-
-# In[21]:
-
-
 tokenizer = Tokenizer(num_words=vocab_size, oov_token="<OOF>")
 tokenizer.fit_on_texts(x_train)
 word_index = tokenizer.word_index
 
-
-# In[22]:
-
-
-word_index
-
-
-# In[23]:
-
-
 sequences = tokenizer.texts_to_sequences(x_train)
-
-
-# In[40]:
-
-
-sequences[0]
-
-
-# In[39]:
-
 
 sequences_test = tokenizer.texts_to_sequences(X_test)
 
-
-# In[50]:
-
-
-sequences_test[0]
-
-
-# In[24]:
-
-
 padded = pad_sequences(sequences,truncating='post',maxlen=max_length)
 
-
-# In[51]:
-
-
-padded[0]
-
-
-# In[52]:
-
-
 padded_test = pad_sequences(sequences_test,truncating='post',maxlen=max_length)
-
-
-# In[89]:
 
 
 model = keras.Sequential([
@@ -266,23 +94,13 @@ model = keras.Sequential([
 ])
 
 
-# In[90]:
-
-
 model.summary()
-
-
-# In[91]:
-
 
 model.compile(
     loss = 'sparse_categorical_crossentropy',
     optimizer = 'adam',
     metrics = ['accuracy']
 )
-
-
-# In[93]:
 
 
 history = model.fit(
@@ -294,15 +112,9 @@ history = model.fit(
 )
 
 
-# In[ ]:
-
-
 #Evaluate the model on the test data using `evaluate`: 
 score = model.evaluate(padded_test, y_test_le, verbose=0)
 print("test loss, test acc:", score)
-
-
-# In[61]:
 
 
 # Plot the loss and accuracy curves for training and validation:
